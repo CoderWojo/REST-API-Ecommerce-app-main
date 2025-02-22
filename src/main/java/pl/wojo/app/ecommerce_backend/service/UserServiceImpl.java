@@ -1,7 +1,12 @@
 package pl.wojo.app.ecommerce_backend.service;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import pl.wojo.app.ecommerce_backend.api_model.LoginBody;
@@ -73,16 +78,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginResponse login(LoginBody loginBody, String jwtFromHeader) throws IncorrectCredentialsException {
-        //TODO: zmień sygnature LoginResponse na user_id, jwt i popraw w zwracanym obiekcie /login
-        // 1. jeśli user wysłał jwt, to zweryfikuj go (bez sprawdzania email i password) i wydaj nowy
-        LocalUser user = null;
-
         if(jwtFromHeader != null && jwtService.verifyJWT(jwtFromHeader)) {
             // nie sprawdzaj email i haslo, tylko wydaj nowy jwt który potrzebuje jedynie userId
             // zakładać możemy że email i haslo są nieobecne
             
             Optional<Long> opUser_id = repository.findUserIdByEmailIgnoreCase(loginBody.getEmail());
-            System.out.println("IDentyfikator po wyszukaniu: " + opUser_id.get());
             if(opUser_id.isPresent()) {
                 // utworz nowy jwt
                 Long id = opUser_id.get();
@@ -97,10 +97,10 @@ public class UserServiceImpl implements UserService {
             }
             // String newJwt = jwtService.generateJWT(null)
         } else {
+            LocalUser user = null;
             String email = loginBody.getEmail();
             String rawPassword = loginBody.getPassword();  //raw password
             Optional<LocalUser> opUser = repository.findByEmailIgnoreCase(email);
-            
             if(opUser.isPresent()) {
                 if(encryptionService.verify(rawPassword, opUser.get().getPassword())) {
                     // password is correct, dołącz JWT do response
@@ -108,6 +108,15 @@ public class UserServiceImpl implements UserService {
                     String jwt = jwtService.generateJWT(user.getId());
                     LoginResponse loginResponse = new LoginResponse(user.getId(), jwt);
     
+                    // dodajemy do SecurityCOntext
+                    SecurityContext securityContext = SecurityContextHolder.getContext();
+                    // przesyłamy 'null' bo jwt jest weryfikowany na każdym niepublicznym endpoincie i to on jest dowodem tożsamości
+                    // securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(user, null));
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+                    System.out.println("USER: " + user + " został dodany do SecurityContext, " + securityContext.getAuthentication());
+
+
                     return loginResponse;
     
                 } else {

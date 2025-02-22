@@ -40,10 +40,6 @@ public class AuthenticationController {
     public ResponseEntity<LoginResponse> login(@RequestBody(required = false) LoginBody loginBody, 
         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String jwtFromHeader,
         @RequestHeader HashMap<String, String> headers) {
-        // for (Map.Entry<String,String> entry : headers.entrySet()) {
-        //     System.out.println(entry);
-        // }
-        //     System.out.println("JWTFROMHEADER: " + jwtFromHeader);
         
         LoginResponse response = userService.login(loginBody, jwtFromHeader);  // dolaczany jest jwt
 
@@ -51,4 +47,12 @@ public class AuthenticationController {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + response.getJwt())
             .body(response);
     }
+
+    @PostMapping("/auth/test")
+    public String postMethodName() {
+        //TODO: process POST request
+        
+        return "TO JEST TEST!";
+    }
+    
 }

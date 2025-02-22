@@ -7,10 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 
 import jakarta.annotation.PostConstruct;
-import pl.wojo.app.ecommerce_backend.model.LocalUser;
 
 @Service
 public class JWTService {
@@ -43,11 +41,16 @@ public class JWTService {
             .withExpiresAt(new Date(System.currentTimeMillis() + expiresInSeconds))
             .sign(algorithm);
             
-        return JWT_token;
+        return "Bearer " + JWT_token;
     }
 
     public boolean verifyJWT(String jwtToken) {
-        String cleanJwt = jwtToken.substring(7);
+        String cleanJwt = null;
+        if(jwtToken.startsWith("Bearer "))
+            cleanJwt = jwtToken.substring(7);
+        else 
+            cleanJwt = jwtToken;
+        
         // weryfikacja przechodzi po wszystkich claims po dacie też, TODO: SPRAWDZ PODAJĄC NIEPOPRAWNY CLAIM (EDIT - DZIAŁA)
         jwt.require(algorithm)
             // .withSubject(cleanJwt) nie da sie zweryfikowac

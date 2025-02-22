@@ -1,20 +1,75 @@
 package pl.wojo.app.ecommerce_backend.security;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import pl.wojo.app.ecommerce_backend.model.LocalUser;
+import pl.wojo.app.ecommerce_backend.repository.LocalUserRepository;
+import pl.wojo.app.ecommerce_backend.service.JWTService;
 
-public class JWTRequestFilter extends OncePerRequestFilter{
+@Component
+public class JWTRequestFilter extends OncePerRequestFilter {
+
+    private JWTService jwtService;
+    private LocalUserRepository repository;
+
+    public JWTRequestFilter(JWTService jwtService, LocalUserRepository repository) {
+        this.jwtService = jwtService;
+        this.repository = repository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
+        // sprawdz czy user wysyła w żądaniu nagłówek Authorization z tokenem JWT
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        // TODO: po udanym /login, niech user(Authentication) zostanie dodany do SecurityCOntext
+        if(authHeader != null && jwtService.verifyJWT(authHeader)) {
+            // dodajemy użytkownika do SecurityContext jako ten który ma dostęp.
+            String cleanJWT;
+            if(authHeader.startsWith("Bearer ")) 
+                cleanJWT = authHeader.substring(7);
+            else
+                cleanJWT = authHeader;
+
+            DecodedJWT decodedJWT = JWT.decode(cleanJWT);
+            Long user_id = Long.parseLong(decodedJWT.getSubject());
+
+            Optional<LocalUser> opUser = repository.findById(user_id);
+            LocalUser user = null;
+            if(opUser.isPresent()) {
+                user = opUser.get();
+            }
+            // TODO: do /profile zmien na tworzenie 'authorities', dodaj pole w LocalUser LIST<GRATUEDROLES>'ROLE' i tu podłącz i dodaj w bazie danych
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            securityContext.setAuthentication(authentication);
+
+            System.out.println("USER: " + user + " został dodany do SecurityContext, " + securityContext.getAuthentication());
             
+            filterChain.doFilter(request, response);
+        } else {
+            // nie dodajemy
+            filterChain.doFilter(request, response);
+        }
     }
     
 }
