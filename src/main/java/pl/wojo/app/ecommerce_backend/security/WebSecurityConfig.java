@@ -22,7 +22,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(auth -> auth
             .requestMatchers("/auth/register", "/auth/login").permitAll()  // Publiczne endpointy 
             .anyRequest().authenticated()); // Każde inne żądanie musi być uwierzytelnione
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

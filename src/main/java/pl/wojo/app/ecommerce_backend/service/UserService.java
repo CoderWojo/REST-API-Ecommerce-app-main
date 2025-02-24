@@ -7,6 +7,8 @@ import pl.wojo.app.ecommerce_backend.model.LocalUser;
 
 public interface UserService {
 
+    // LocalUser profile(Long user_id, HttpServletResponse response);
+
     LoginResponse login(LoginBody loginBody, String jwtFromHeader);
 
     LocalUser register(RegistrationBody registrationBody);

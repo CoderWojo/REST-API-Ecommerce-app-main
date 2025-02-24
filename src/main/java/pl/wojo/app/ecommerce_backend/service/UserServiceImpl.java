@@ -95,8 +95,8 @@ public class UserServiceImpl implements UserService {
             } else {
                 throw new IncorrectCredentialsException("JWT is not correct!");
             }
-            // String newJwt = jwtService.generateJWT(null)
         } else {
+            
             LocalUser user = null;
             String email = loginBody.getEmail();
             String rawPassword = loginBody.getPassword();  //raw password
@@ -113,9 +113,7 @@ public class UserServiceImpl implements UserService {
                     // przesyłamy 'null' bo jwt jest weryfikowany na każdym niepublicznym endpoincie i to on jest dowodem tożsamości
                     // securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(user, null));
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-
-                    System.out.println("USER: " + user + " został dodany do SecurityContext, " + securityContext.getAuthentication());
-
+                    securityContext.setAuthentication(authentication);
 
                     return loginResponse;
     

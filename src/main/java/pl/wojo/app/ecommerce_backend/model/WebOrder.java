@@ -2,6 +2,9 @@ package pl.wojo.app.ecommerce_backend.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,13 +29,16 @@ public class WebOrder {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private LocalUser user;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "address_id", nullable = false)
+    @JsonIgnore
     private Address address;
 
     @OneToMany(mappedBy = "webOrder", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
     private List<WebOrderQuantities> products;
 
 }

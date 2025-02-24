@@ -6,10 +6,11 @@ import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -40,7 +41,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         throws ServletException, IOException {
         // sprawdz czy user wysyła w żądaniu nagłówek Authorization z tokenem JWT
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
+        System.out.println("TUUUUUUU: " + authHeader);
         // TODO: po udanym /login, niech user(Authentication) zostanie dodany do SecurityCOntext
         if(authHeader != null && jwtService.verifyJWT(authHeader)) {
             // dodajemy użytkownika do SecurityContext jako ten który ma dostęp.
@@ -53,17 +54,28 @@ public class JWTRequestFilter extends OncePerRequestFilter {
             DecodedJWT decodedJWT = JWT.decode(cleanJWT);
             Long user_id = Long.parseLong(decodedJWT.getSubject());
 
+            System.out.println("user_id=====" + user_id);
             Optional<LocalUser> opUser = repository.findById(user_id);
             LocalUser user = null;
+            
+            List<LocalUser> all = repository.findAll();
+            System.out.println("All======" + all);
+
+            System.out.println("User ====" + user);
             if(opUser.isPresent()) {
                 user = opUser.get();
             }
             // TODO: do /profile zmien na tworzenie 'authorities', dodaj pole w LocalUser LIST<GRATUEDROLES>'ROLE' i tu podłącz i dodaj w bazie danych
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+            //setting details
+            WebAuthenticationDetailsSource source = new WebAuthenticationDetailsSource();
+            WebAuthenticationDetails details = source.buildDetails(request);
+            authentication.setDetails(details);
+
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
 
-            System.out.println("USER: " + user + " został dodany do SecurityContext, " + securityContext.getAuthentication());
+            System.out.println("SecurityContext, authentication: " + securityContext.getAuthentication());
             
             filterChain.doFilter(request, response);
         } else {

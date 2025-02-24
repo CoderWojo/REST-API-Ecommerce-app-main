@@ -1,5 +1,8 @@
 package pl.wojo.app.ecommerce_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,10 +21,12 @@ public class WebOrderQuantities {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
+    @JsonIgnore
     private Long id;
 
     @ManyToOne(optional = false)  // każdy rekord należy do 1 zamówienia
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonBackReference
     private WebOrder webOrder;
 
     @ManyToOne(optional = false)

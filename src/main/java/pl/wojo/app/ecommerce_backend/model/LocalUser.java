@@ -2,6 +2,8 @@ package pl.wojo.app.ecommerce_backend.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "local_user")
@@ -32,6 +35,7 @@ public class LocalUser {
     
     private String username;
 
+    @JsonIgnore
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -46,6 +50,11 @@ public class LocalUser {
     
     // Jeśli usuniesz encję podrzędną (dziecko) z kolekcji w encji 
     // nadrzędnej (rodzic) to Hibernate automatycznie usunie ją z bazy danych
+    // Ładowanie LAZY, po pobraniu podstawowych informacji o użytkowniku (repository.findById(user_id)) Hibernate zamyka sesję po ich pobraniu.
+    // Później gdy niejawnie jest wywyoływana user.getAddresses(), Hibernate nie ma już aktywnej sesji 
+    // @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Exclude
+    @JsonIgnore
     private List<Address> addresses;    
 }

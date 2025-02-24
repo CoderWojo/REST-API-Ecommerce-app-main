@@ -1,4 +1,4 @@
-package pl.wojo.app.ecommerce_backend.controller;
+package pl.wojo.app.ecommerce_backend.controller.auth;
 
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +14,8 @@ import java.util.HashMap;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -37,22 +39,18 @@ public class AuthenticationController {
     }
     
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody(required = false) LoginBody loginBody, 
+    public ResponseEntity<LoginResponse> login(@RequestBody(required = false) @Valid LoginBody loginBody, 
         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String jwtFromHeader,
         @RequestHeader HashMap<String, String> headers) {
         
         LoginResponse response = userService.login(loginBody, jwtFromHeader);  // dolaczany jest jwt
-
         return ResponseEntity.ok()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + response.getJwt())
             .body(response);
     }
 
-    @PostMapping("/auth/test")
-    public String postMethodName() {
-        //TODO: process POST request
-        
-        return "TO JEST TEST!";
+    @GetMapping("/me")
+    public LocalUser profile(@AuthenticationPrincipal LocalUser me) {
+        return me;
     }
-    
 }
