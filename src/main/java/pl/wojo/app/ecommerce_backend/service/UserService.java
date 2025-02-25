@@ -4,10 +4,11 @@ import pl.wojo.app.ecommerce_backend.api_model.LoginBody;
 import pl.wojo.app.ecommerce_backend.api_model.LoginResponse;
 import pl.wojo.app.ecommerce_backend.api_model.RegistrationBody;
 import pl.wojo.app.ecommerce_backend.model.LocalUser;
+import pl.wojo.app.ecommerce_backend.model.VerificationToken;
 
 public interface UserService {
 
-    // LocalUser profile(Long user_id, HttpServletResponse response);
+    VerificationToken createVerificationToken(LocalUser user);
 
     LoginResponse login(LoginBody loginBody, String jwtFromHeader);
 

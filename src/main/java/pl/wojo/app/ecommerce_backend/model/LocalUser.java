@@ -48,12 +48,15 @@ public class LocalUser {
     @Column(name = "lastName", nullable = false)
     private String lastName;
     
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.REMOVE)
+    private List<VerificationToken> verificationTokens;
+
     // Jeśli usuniesz encję podrzędną (dziecko) z kolekcji w encji 
     // nadrzędnej (rodzic) to Hibernate automatycznie usunie ją z bazy danych
     // Ładowanie LAZY, po pobraniu podstawowych informacji o użytkowniku (repository.findById(user_id)) Hibernate zamyka sesję po ich pobraniu.
     // Później gdy niejawnie jest wywyoływana user.getAddresses(), Hibernate nie ma już aktywnej sesji 
     // @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Exclude
     @JsonIgnore
     private List<Address> addresses;    

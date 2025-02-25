@@ -18,12 +18,15 @@ public class WebSecurityConfig {
 
     @Bean
     SecurityFilterChain configure(HttpSecurity http) throws Exception {
+        /*CSRF jest potrzebne, gdy sesja użytkownika jest przechowywana w przeglądarce (cookies).
+🔹 CSRF NIE jest potrzebne, gdy autoryzacja działa na tokenach JWT w nagłówkach.
+ */
+        // csrf wymagany na endpointach POST DETELE PATCH UPDATE  
         http.csrf(csrf -> csrf.disable());  // wyłączamy csrf, bo domyślnie spring security wyszukuje csrf header w żądaniach
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/register", "/auth/login").permitAll()  // Publiczne endpointy 
+            .requestMatchers("/auth/register", "/auth/login", "/products").permitAll()  // Publiczne endpointy 
             .anyRequest().authenticated()); // Każde inne żądanie musi być uwierzytelnione
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// nie używamy sesji, bazujemy na jwt
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

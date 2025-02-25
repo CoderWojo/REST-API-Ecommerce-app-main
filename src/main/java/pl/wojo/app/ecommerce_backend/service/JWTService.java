@@ -44,6 +44,18 @@ public class JWTService {
         return "Bearer " + JWT_token;
     }
 
+    public String generateVerificationJWT(String email) {
+        String JWT_token = jwt.create()
+            .withSubject(email) // subject
+            .withIssuedAt(new Date())
+            .withIssuer(issuer)
+            //TODO: roles
+            .withExpiresAt(new Date(System.currentTimeMillis() + expiresInSeconds))
+            .sign(algorithm);
+            
+        return "Bearer " + JWT_token;
+    }
+
     public boolean verifyJWT(String jwtToken) {
         String cleanJwt = null;
         if(jwtToken.startsWith("Bearer "))
