@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/auth")
@@ -44,10 +45,20 @@ public class AuthenticationController {
         @RequestHeader HashMap<String, String> headers) {
         
         LoginResponse response = userService.login(loginBody, jwtFromHeader);  // dolaczany jest jwt
+        
         return ResponseEntity.ok()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + response.getJwt())
             .body(response);
     }
+
+    @PostMapping("/verify") // /auth/verify?token=371287463hjadfhaf
+    public ResponseEntity<String> verify(@RequestParam String token) {
+        System.out.println("ELOOOOOOOo");
+        userService.verifyUser(token);
+
+        return ResponseEntity.status(HttpStatus.OK).body("User verified successfully!");
+    }
+    
 
     @GetMapping("/me")
     public LocalUser profile(@AuthenticationPrincipal LocalUser me) {

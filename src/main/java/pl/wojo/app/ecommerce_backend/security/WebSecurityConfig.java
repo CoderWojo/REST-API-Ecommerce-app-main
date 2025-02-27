@@ -24,7 +24,7 @@ public class WebSecurityConfig {
         // csrf wymagany na endpointach POST DETELE PATCH UPDATE  
         http.csrf(csrf -> csrf.disable());  // wyłączamy csrf, bo domyślnie spring security wyszukuje csrf header w żądaniach
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/register", "/auth/login", "/products").permitAll()  // Publiczne endpointy 
+            .requestMatchers("/auth/register", "/auth/login", "/products", "/auth/verify").permitAll()  // Publiczne endpointy 
             .anyRequest().authenticated()); // Każde inne żądanie musi być uwierzytelnione
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// nie używamy sesji, bazujemy na jwt
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

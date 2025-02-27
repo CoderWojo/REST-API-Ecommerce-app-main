@@ -5,10 +5,14 @@ import java.util.HashMap;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import pl.wojo.app.ecommerce_backend.api_model.LoginFailureReason;
+import pl.wojo.app.ecommerce_backend.api_model.LoginResponse;
 
 @ControllerAdvice("pl.wojo.app.ecommerce_backend.controller")
 public class GlobalExecptionHandler {
@@ -57,4 +61,45 @@ public class GlobalExecptionHandler {
         return ResponseEntity.badRequest()
             .body(errorResponseBody);
     }
+    //test it
+    @ExceptionHandler(exception = UserNotVerifiedException.class)
+    public ResponseEntity<LoginResponse> handleUserNotVerifiedException(UserNotVerifiedException e) {
+        LoginResponse response;
+        if(e.getIsEmailActive()) {
+            response = LoginResponse.failure(LoginFailureReason.USER_NOT_VERIFIED, "Please verify your account, you have a mail message on your mailbox.");
+        } else {
+            response = LoginResponse.failure(LoginFailureReason.USER_NOT_VERIFIED_EMAIL_RESENT, "Please verify your account, we just sent a new link allowing you to verify.");
+        }
+
+        // użytkownik nie spełnił wszystkich warunków logowania
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+    //test it
+    @ExceptionHandler(exception = MailSendException.class)
+    public ResponseEntity<LoginResponse> handleMailSendException(MailSendException e) {
+        LoginResponse response = LoginResponse.failure(LoginFailureReason.MAIL_SEND_ERROR, "An email cannot be send...");
+        
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(exception = UserAlreadyVerifiedException.class)
+    public ResponseEntity<String> handleUserAlreadyVerifiedException(UserAlreadyVerifiedException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(exception = TokenNotFoundException.class)
+    public ResponseEntity<String> handleTokenNotFoundException(TokenNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(exception = IncorrectCredentialsException.class)
+    public ResponseEntity<String> handleIncorrectCredentialsException(IncorrectCredentialsException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    //     //test it
+    // @ExceptionHandler(exception = MailSendException.class)
+    // public ResponseEntity<Object> handleMailSendExceptionRegister(MailSendException e) {
+    //     // Wysłanie maila przy rejestracji nie powiodło się ->niepoprawny mail lub blad po stronie JavaMailSender
+    //     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(LoginFailureReason.MAIL_SEND_ERROR);
+    // }
 }

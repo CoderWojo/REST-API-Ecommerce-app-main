@@ -1,7 +1,7 @@
 package pl.wojo.app.ecommerce_backend.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -23,14 +23,6 @@ public class EmailServiceImpl implements EmailService {
         this.javaMailSender = javaMailSender;
     }
 
-    // @Override
-    // public SimpleMailMessage makeMailMessage() {
-    //     SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-    //     simpleMailMessage.setFrom(fromAddress);
-        
-    //     return simpleMailMessage;
-    // }
-
     @Override
     public void makeAndSendVerificationMail(VerificationToken verificationToken) { // user, token, time
         // SimpleMailMessage message = makeMailMessage();
@@ -43,8 +35,8 @@ public class EmailServiceImpl implements EmailService {
 
         try {
             javaMailSender.send(message);
-        } catch (MailException e) {
-            e.printStackTrace();
+        } catch (MailSendException e) {
+            throw new MailSendException("Failed to send verification email to " + verificationToken.getUser().getEmail());
         }
     }
 }

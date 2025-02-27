@@ -28,7 +28,7 @@ public class JWTService {
     public void postConstruct() {
         jwt = new JWT();
         algorithm = Algorithm.HMAC256(secret_key);
-        expiresInSeconds =  60 * 60 * 1000;  // 60*60*1000=1h 60 * 60 * 1000;
+        expiresInSeconds = 3; //60 * 60 * 1000;  // 60*60*1000=1h 60 * 60 * 1000;
         issuer = "Wojo W.";
     }
 

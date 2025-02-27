@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +33,6 @@ public class LocalUser {
     private Long id;
     
     @Column(name = "username", unique = true, nullable = false)
-    
     private String username;
 
     @JsonIgnore
@@ -48,8 +48,15 @@ public class LocalUser {
     @Column(name = "lastName", nullable = false)
     private String lastName;
     
+    @OrderBy("createdTimestamp DESC")
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private List<VerificationToken> verificationTokens;
+
+    
+    // Problem w tym że tabela zawiera rekordy ktore nie mają tej kolumny czyli niejako ich wartosci są null
+    // a my okreslilismy ze nullable=false
+    @Column(name = "email_verified", nullable = false)
+    private boolean isEmailVerified = false;
 
     // Jeśli usuniesz encję podrzędną (dziecko) z kolekcji w encji 
     // nadrzędnej (rodzic) to Hibernate automatycznie usunie ją z bazy danych
