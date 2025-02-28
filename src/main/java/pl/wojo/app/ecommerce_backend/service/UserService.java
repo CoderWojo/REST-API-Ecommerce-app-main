@@ -1,5 +1,8 @@
 package pl.wojo.app.ecommerce_backend.service;
 
+import org.springframework.mail.MailSendException;
+
+import jakarta.mail.MessagingException;
 import pl.wojo.app.ecommerce_backend.api_model.LoginBody;
 import pl.wojo.app.ecommerce_backend.api_model.LoginResponse;
 import pl.wojo.app.ecommerce_backend.api_model.RegistrationBody;
@@ -9,9 +12,9 @@ public interface UserService {
 
     boolean verifyUser(String token);
 
-    LoginResponse login(LoginBody loginBody, String jwtFromHeader);
+    LoginResponse login(LoginBody loginBody, String jwtFromHeader) throws MessagingException;
 
-    LocalUser register(RegistrationBody registrationBody);
+    LocalUser register(RegistrationBody registrationBody) throws MessagingException, MailSendException;
 
     boolean checkEmailAlreadyExists(String email);
 

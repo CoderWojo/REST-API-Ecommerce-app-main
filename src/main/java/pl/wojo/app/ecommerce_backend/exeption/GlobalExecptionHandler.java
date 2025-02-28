@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import jakarta.mail.MessagingException;
 import pl.wojo.app.ecommerce_backend.api_model.LoginFailureReason;
 import pl.wojo.app.ecommerce_backend.api_model.LoginResponse;
 
@@ -96,10 +97,9 @@ public class GlobalExecptionHandler {
     public ResponseEntity<String> handleIncorrectCredentialsException(IncorrectCredentialsException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
-    //     //test it
-    // @ExceptionHandler(exception = MailSendException.class)
-    // public ResponseEntity<Object> handleMailSendExceptionRegister(MailSendException e) {
-    //     // Wysłanie maila przy rejestracji nie powiodło się ->niepoprawny mail lub blad po stronie JavaMailSender
-    //     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(LoginFailureReason.MAIL_SEND_ERROR);
-    // }
+    
+    @ExceptionHandler(exception = MessagingException.class)
+    public ResponseEntity<String> handleMessagingException(MessagingException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
 }

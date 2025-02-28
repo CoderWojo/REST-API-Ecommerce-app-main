@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import pl.wojo.app.ecommerce_backend.api_model.LoginBody;
 import pl.wojo.app.ecommerce_backend.api_model.LoginResponse;
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public LocalUser register(RegistrationBody registrationBody) {
+    public LocalUser register(RegistrationBody registrationBody) throws MessagingException, MailSendException{
         String email = registrationBody.getEmail();
         String username = registrationBody.getUsername();
         String password = registrationBody.getPassword();
@@ -73,36 +74,16 @@ public class UserServiceImpl implements UserService {
         try {
             emailService.makeAndSendVerificationMail(verificationToken);
         } catch (MailSendException e) {
-            throw e;
+            throw new MailSendException("An email cannot be sent.", e);
+        } catch(MessagingException e) {
+            throw new MessagingException("Error while composing email.", e);
         }
         tokenRepository.save(verificationToken);
 
         return user;
     }
-
     @Override
-    public boolean checkEmailAlreadyExists(String email) {
-        return userRepository.existsByEmailIgnoreCase(email);
-    }
-
-    @Override
-    public boolean checkUsernameAlreadyExists(String username) {
-        return userRepository.existsByUsernameIgnoreCase(username);
-    }
-
-    static LocalUser registrationBodyToLocalUser(RegistrationBody registrationBody) {
-        return LocalUser.builder()
-        .username(registrationBody.getUsername())
-        //TODO: Encrypt password!
-        .password(registrationBody.getPassword())
-        .email(registrationBody.getEmail())
-        .firstName(registrationBody.getFirstName())
-        .lastName(registrationBody.getLastName())
-        .build();
-    }
-
-    @Override
-    public LoginResponse login(LoginBody loginBody, String jwtFromHeader) throws IncorrectCredentialsException, UserNotVerifiedException {
+    public LoginResponse login(LoginBody loginBody, String jwtFromHeader) throws IncorrectCredentialsException, UserNotVerifiedException, MailSendException, MessagingException {
         if(jwtFromHeader != null && jwtService.verifyJWT(jwtFromHeader)) {
             // nie sprawdzaj email i haslo, tylko wydaj nowy jwt który potrzebuje jedynie userId
             // zakładać możemy że email i haslo są nieobecne
@@ -151,13 +132,10 @@ public class UserServiceImpl implements UserService {
                             // wyślij
                             VerificationToken newToken = verificationService.createVerificationToken(user);
                             tokenRepository.save(newToken);
-                            try {
-                                emailService.makeAndSendVerificationMail(newToken);
-                                
-                            } catch (MailSendException e) {
-                                throw e;
-                            }
+
+                            emailService.makeAndSendVerificationMail(newToken);
                         }
+                        //TODO: Uspraw te łapanie wyjątków, aby przekazywały 'cause' wyżej
                         throw new UserNotVerifiedException("Please check your mailbox and verify your account.", !resend);
                     }
                 } else {
@@ -168,6 +146,28 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+
+    @Override
+    public boolean checkEmailAlreadyExists(String email) {
+        return userRepository.existsByEmailIgnoreCase(email);
+    }
+
+    @Override
+    public boolean checkUsernameAlreadyExists(String username) {
+        return userRepository.existsByUsernameIgnoreCase(username);
+    }
+
+    static LocalUser registrationBodyToLocalUser(RegistrationBody registrationBody) {
+        return LocalUser.builder()
+        .username(registrationBody.getUsername())
+        //TODO: Encrypt password!
+        .password(registrationBody.getPassword())
+        .email(registrationBody.getEmail())
+        .firstName(registrationBody.getFirstName())
+        .lastName(registrationBody.getLastName())
+        .build();
+    }
+
 
     @Override
     @Transactional  // metody zmieniające coś w bazie danych powinny być oznaczone @Transactional

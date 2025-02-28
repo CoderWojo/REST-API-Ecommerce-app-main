@@ -2,6 +2,7 @@ package pl.wojo.app.ecommerce_backend.controller.auth;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import pl.wojo.app.ecommerce_backend.api_model.LoginBody;
 import pl.wojo.app.ecommerce_backend.api_model.LoginResponse;
@@ -32,7 +33,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<LocalUser> register(@RequestBody @Valid RegistrationBody registrationBody) {
+    public ResponseEntity<LocalUser> register(@RequestBody @Valid RegistrationBody registrationBody) throws MessagingException{
         LocalUser savedUser = userService.register(registrationBody);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -42,7 +43,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody(required = false) @Valid LoginBody loginBody, 
         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String jwtFromHeader,
-        @RequestHeader HashMap<String, String> headers) {
+        @RequestHeader HashMap<String, String> headers) throws MessagingException {
         
         LoginResponse response = userService.login(loginBody, jwtFromHeader);  // dolaczany jest jwt
         

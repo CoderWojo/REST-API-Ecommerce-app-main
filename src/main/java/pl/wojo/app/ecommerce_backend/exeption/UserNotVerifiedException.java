@@ -7,6 +7,10 @@ public class UserNotVerifiedException extends RuntimeException {
         super(message);
         this.isEmailActive = isEmailActive;
     }
+    public UserNotVerifiedException(String message, boolean isEmailActive, Throwable cause) {
+        super(message, cause);
+        this.isEmailActive = isEmailActive;
+    }
 
     public boolean getIsEmailActive() {
         return isEmailActive;
