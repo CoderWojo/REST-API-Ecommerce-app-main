@@ -42,13 +42,13 @@ public class LocalUser {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "firstName", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "lastName", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
     
-    @OrderBy("createdTimestamp DESC")
+    @OrderBy("created_timestamp DESC")
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private List<VerificationToken> verificationTokens;
 
