@@ -45,7 +45,7 @@ public class AuthenticationController {
         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String jwtFromHeader,
         @RequestHeader HashMap<String, String> headers) throws MessagingException {
         
-        LoginResponse response = userService.login(loginBody, jwtFromHeader);  // dolaczany jest jwt
+        LoginResponse response = userService.login(loginBody);  // dolaczany jest jwt
         
         return ResponseEntity.ok()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + response.getJwt())

@@ -12,7 +12,7 @@ public interface UserService {
 
     boolean verifyUser(String token);
 
-    LoginResponse login(LoginBody loginBody, String jwtFromHeader) throws MessagingException;
+    LoginResponse login(LoginBody loginBody) throws MessagingException;
 
     LocalUser register(RegistrationBody registrationBody) throws MessagingException, MailSendException;
 

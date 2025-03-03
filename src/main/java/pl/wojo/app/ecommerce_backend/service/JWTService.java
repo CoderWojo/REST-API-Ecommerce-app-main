@@ -72,4 +72,8 @@ public class JWTService {
 
         return true;
     }
+
+    public Long getId(String token) {
+        return Long.parseLong(jwt.decodeJwt(token).getSubject());
+    }
 }
