@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static pl.wojo.app.ecommerce_backend.api_model.LoginBody.createLoginBody;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +34,15 @@ import pl.wojo.app.ecommerce_backend.model.LocalUser;
 @SpringBootTest
 public class UserServiceTest {
 
-    private RegistrationBody usernameInUse;
-    private RegistrationBody emailInUse;
-    private RegistrationBody unique;
+    private static RegistrationBody usernameInUse;
+    private static RegistrationBody emailInUse;
+    private static RegistrationBody unique;
 
-    private LoginBody invalidPassword;
-    private LoginBody nonExistedEmail;
-    private LoginBody notVerified;
-    private LoginBody notVerifiedSendNew;
-    private LoginBody validLogin;
+    private static LoginBody invalidPassword;
+    private static LoginBody nonExistedEmail;
+    private static LoginBody notVerified;
+    private static LoginBody notVerifiedSendNew;
+    private static LoginBody validLogin;
 
     @Autowired
     private UserServiceImpl userService;
@@ -56,8 +56,8 @@ public class UserServiceTest {
     ).withConfiguration(GreenMailConfiguration.aConfig().withUser("springboot", "secret"))
      .withPerMethodLifecycle(true);
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUp() {
         usernameInUse = RegistrationBody.builder()
             .username("UserA")
             .email("UserServiceTest$testRegisterUser@junit.com")

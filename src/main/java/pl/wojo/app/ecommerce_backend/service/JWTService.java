@@ -50,6 +50,7 @@ public class JWTService {
             .withIssuedAt(new Date())
             .withIssuer(issuer)
             //TODO: roles
+            // TODO: chyba trzeba ExpiresAt!
             .withExpiresAt(new Date(System.currentTimeMillis() + expiresInSeconds))
             .sign(algorithm);
             

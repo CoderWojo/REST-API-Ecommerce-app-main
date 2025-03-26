@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.NoArgsConstructor;
 import pl.wojo.app.ecommerce_backend.model.VerificationToken;
 
 @Service
+@NoArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
     @Value("${email.from}")
@@ -61,34 +63,5 @@ public class EmailServiceImpl implements EmailService {
         } catch (MailSendException e) {
             throw new MailSendException("Failed to send verification email to " + verificationToken.getUser().getEmail());
         }
-
-        // try {
-        //     MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        //     MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-    
-        //     mimeMessageHelper.setFrom(fromAddress);
-        //     mimeMessageHelper.setTo(verificationToken.getUser().getEmail());
-        //     mimeMessageHelper.setSubject("Java email with attachŻment! From Wojo");
-        //     File file1 = new File("C:\\Users\\wojo4\\Desktop\\workspace\\REST-API-Ecommerce-app-main-main\\src\\main\\resources\\images\\logo.png");
-        //     File file2 = new File("C:\\Users\\wojo4\\Desktop\\workspace\\REST-API-Ecommerce-app-main-main\\src\\main\\resources\\images\\dzik.jpg");
-        //     FileSystemResource inlineFile = new FileSystemResource("C:\\Users\\wojo4\\Desktop\\workspace\\REST-API-Ecommerce-app-main-main\\src\\main\\resources\\images\\logo.png");
-
-        //     mimeMessageHelper.addAttachment("plik_od_wojaHIHIHI.png", file1);
-        //     mimeMessageHelper.addAttachment("Dzik2_od_WojowazaXXL.jpg", file2);
-            
-        //     mimeMessageHelper.setText(
-        //         "<h1>Please find documents attached below. </h1> Oto zdjęcie dla Ciebie mój skarbie: </p>"
-        //         + "<img src=\"cid:logo1\"/>", true
-        //     );
-        //     mimeMessageHelper.addInline("logo1", inlineFile);
-
-
-        //     mimeMessage = mimeMessageHelper.getMimeMessage();
-        //     javaMailSender.send(mimeMessage);
-
-        // } catch (MessagingException e) {
-        //     // TODO: handle exception
-        // }
-
     }
 }
