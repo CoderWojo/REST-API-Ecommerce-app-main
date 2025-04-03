@@ -10,11 +10,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.NoArgsConstructor;
 import pl.wojo.app.ecommerce_backend.model.VerificationToken;
 
 @Service
-@NoArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
     @Value("${email.from}")

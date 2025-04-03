@@ -13,7 +13,6 @@ public class EncryptionService {
     }
 
     public String encode(String password) {
-        System.out.println("hash dla " + password + ":" + bCryptPasswordEncoder.encode(password));
         return bCryptPasswordEncoder.encode(password);
     }
 

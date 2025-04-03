@@ -2,6 +2,7 @@ package pl.wojo.app.ecommerce_backend.service;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -48,5 +49,13 @@ public class JWTServiceTest {
         assertEquals(decodedJWT.getSubject(), expected_subject);
         assertEquals(decodedJWT.getIssuer(), expected_issuer);
         assertEquals(decodedJWT.getAlgorithm(), Algorithm.HMAC256(key).getName());
+    }
+
+    @Test
+    public void shouldVerifyJWT() {
+        String jwt = jwtService.generateJWT(1l);
+
+        assertDoesNotThrow(() -> jwtService.verifyJWT(jwt), "This method should not throws an exception.");
+        assertTrue(jwtService.verifyJWT(jwt));
     }
 }

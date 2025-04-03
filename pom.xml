@@ -112,6 +112,11 @@
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-test</artifactId>
 	</dependency>
+
+	<dependency>
+		<groupId>com.fasterxml.jackson.core</groupId>
+		<artifactId>jackson-databind</artifactId> <!-- zawiera w sobie CORE oraz ANNOTATIONS!-->
+	</dependency>
 	</dependencies>
 
 <!-- czy to ma byc? -->

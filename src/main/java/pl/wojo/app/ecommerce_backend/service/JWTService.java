@@ -38,7 +38,7 @@ public class JWTService {
             .withIssuedAt(new Date())
             .withIssuer(issuer)
             //TODO: roles
-            .withExpiresAt(new Date(System.currentTimeMillis() + expiresInSeconds))
+            .withExpiresAt(new Date(System.currentTimeMillis() + expiresInSeconds * 1000))
             .sign(algorithm);
             
         return "Bearer " + JWT_token;
