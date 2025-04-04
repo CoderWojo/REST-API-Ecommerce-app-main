@@ -10,8 +10,6 @@ import pl.wojo.app.ecommerce_backend.api_model.RegistrationBody;
 import pl.wojo.app.ecommerce_backend.model.LocalUser;
 import pl.wojo.app.ecommerce_backend.service.UserService;
 
-import java.util.HashMap;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +40,8 @@ public class AuthenticationController {
     
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody(required = false) @Valid LoginBody loginBody, 
-        @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String jwtFromHeader,
-        @RequestHeader HashMap<String, String> headers) throws MessagingException {
+        @RequestHeader(value = HttpHeaders.AUTHORIZATION, 
+        required = false) String jwtFromHeader) throws MessagingException {
         
         LoginResponse response = userService.login(loginBody);  // dolaczany jest jwt
         
@@ -54,7 +52,6 @@ public class AuthenticationController {
 
     @PostMapping("/verify") // /auth/verify?token=371287463hjadfhaf
     public ResponseEntity<String> verify(@RequestParam String token) {
-        System.out.println("ELOOOOOOOo");
         userService.verifyUser(token);
 
         return ResponseEntity.status(HttpStatus.OK).body("User verified successfully!");

@@ -22,11 +22,11 @@ public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, unique = true)
-    @JsonIgnore
+    // @JsonIgnore
     private Long id;
 
     // Inventory to klasa nadrzędna bo ma JoinColumn
-    @JsonBackReference
+    @JsonBackReference  // nie serializuj tej strony do json
     @OneToOne(cascade = CascadeType.REMOVE, optional = false, orphanRemoval = true)
     @JoinColumn(name = "product_id", nullable = false, unique = true)
     private Product product;

@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "product")
@@ -36,8 +37,10 @@ public class Product {
 
     // Narazie dodam, kiedyś zmodyfikuję
     // orphanRemoval = true, jeśli rodzic przestanie wskazywać na dziecko (np id_dziecka=null), to rekord dziecka zostanie usunięty
+    // JsonManagedReference mówi aby Jackson serializował tą stronę do json
     @OneToOne(mappedBy = "product", optional = false, orphanRemoval = true)
     @JsonManagedReference
     @JsonIgnore
+    @Exclude
     private Inventory inventory;
 }

@@ -24,6 +24,8 @@ import pl.wojo.app.ecommerce_backend.exeption.UsernameAlreadyExistsException;
 import pl.wojo.app.ecommerce_backend.model.LocalUser;
 import pl.wojo.app.ecommerce_backend.model.VerificationToken;
 import pl.wojo.app.ecommerce_backend.repository.LocalUserRepository;
+import pl.wojo.app.ecommerce_backend.repository.OrderRepository;
+import pl.wojo.app.ecommerce_backend.repository.ProductRepository;
 import pl.wojo.app.ecommerce_backend.repository.VerificationTokenRepository;
 
 @Service
@@ -34,19 +36,28 @@ public class UserServiceImpl implements UserService {
     private EmailService emailService;
     private VerificationTokenRepository tokenRepository;
     private VerificationService verificationService;
+    
+    // for testing whether data.sql adds data correctly
+    private ProductRepository productRepository;
+    private OrderRepository orderRepository;
+
 
     public UserServiceImpl(LocalUserRepository userRepository, 
         EncryptionService encryptionService,
         JWTService jwtService,
         EmailService emailService,
         VerificationTokenRepository tokenRepository,
-        VerificationService verificationService) {
+        VerificationService verificationService,
+        ProductRepository productRepository,
+        OrderRepository orderRepository) {
         this.userRepository = userRepository;
         this.encryptionService = encryptionService;
         this.jwtService = jwtService;
         this.emailService = emailService;
         this.tokenRepository = tokenRepository;
         this.verificationService = verificationService;
+        this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
     }
 
     @Override
@@ -88,6 +99,11 @@ public class UserServiceImpl implements UserService {
         String email = loginBody.getEmail();
         String rawPassword = loginBody.getPassword();  //raw password
         LocalUser user = userRepository.findByEmailIgnoreCase(email).orElseThrow(() -> new IncorrectCredentialsException("Credentials are not correct!"));
+        System.out.println("Aktualny user: " + user);
+        System.out.println("jego adresy: " + user.getAddresses());
+        System.out.println("zawartosc tabeli product: " + productRepository.findAll());
+        System.out.println("zawartosc tabeli order: " + orderRepository.findAll());
+
             if(encryptionService.verify(rawPassword, user.getPassword())) {
                 // password is correct, dołącz JWT do response
                 // Utwórz jwt tylko gdy User zweryfikował konto
@@ -143,7 +159,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional  // metody zmieniające coś w bazie danych powinny być oznaczone @Transactional
     public boolean verifyUser(String token) {
-        System.out.println("METODA verifyUser() uruchomiona!");
         Optional<VerificationToken> opToken = tokenRepository.findByToken(token);
         if(opToken.isPresent()) {
             VerificationToken verificationToken = opToken.get();

@@ -30,10 +30,10 @@ public class Address {
     @JoinColumn(name = "user_id", nullable = false)
     private LocalUser user; 
 
-    @Column(name = "addressLine1", nullable = false)
+    @Column(name = "address_line_1", nullable = false)
     private String addressLine1;
 
-    @Column(name = "addressLine2", nullable = true)
+    @Column(name = "address_line_2", nullable = true)
     private String addressLine2;
 
     @Column(name = "country", nullable = false)
@@ -41,7 +41,4 @@ public class Address {
 
     @Column(name = "city", nullable = false)
     private String city;
-
-    @Column(name = "postCode", nullable = false)
-    private String postCode;
 }

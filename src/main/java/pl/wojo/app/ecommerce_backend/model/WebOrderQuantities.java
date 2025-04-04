@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "web_order_quantities")
@@ -27,6 +28,7 @@ public class WebOrderQuantities {
     @ManyToOne(optional = false)  // każdy rekord należy do 1 zamówienia
     @JoinColumn(name = "order_id", nullable = false)
     @JsonBackReference
+    @Exclude    // Exclude bo zapętla się gdy wypisujemy np WebOrder z toString
     private WebOrder webOrder;
 
     @ManyToOne(optional = false)

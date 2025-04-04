@@ -148,9 +148,12 @@ public class UserServiceTest {
     }
 
     @Test
+    @Transactional
     public void testLoginSucceedsWhenEverythingIsCorrect() throws MessagingException {
         // 5. everything correct
         LoginResponse response = userService.login(validLogin); 
+
+        System.out.println("responseeee: " + response);
         assertNotNull(response, "LoginResponse should not be null.");
         assertNotNull(response.getJwt(), "JWT should not be null.");
         assertFalse(response.getJwt().isEmpty(), "JWT should not be empty.");

@@ -25,6 +25,7 @@ public class RegistrationBody {
     //@Length tylko do stringów, @Size do roznych typow danych, kolekcji tez
     @NotNull
     @NotBlank(message = "Password field cannot be blank.")
+    // lookhead sprawdza czy w hasle znajduje sie conajmniej jedna litera, jedna cyfra, i główna część pasująca mówi że dozwolone tylko Litery i cyfry
     @Pattern(regexp ="^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,32}$")
     private String password;
 
