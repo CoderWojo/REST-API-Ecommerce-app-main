@@ -20,7 +20,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getMethodName() {
+    public List<Product> getProducts() {
         return productService.getAllProducts();
     }
     

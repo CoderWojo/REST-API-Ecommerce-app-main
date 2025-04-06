@@ -99,39 +99,39 @@ public class UserServiceImpl implements UserService {
         String email = loginBody.getEmail();
         String rawPassword = loginBody.getPassword();  //raw password
         LocalUser user = userRepository.findByEmailIgnoreCase(email).orElseThrow(() -> new IncorrectCredentialsException("Credentials are not correct!"));
-        System.out.println("Aktualny user: " + user);
-        System.out.println("jego adresy: " + user.getAddresses());
-        System.out.println("zawartosc tabeli product: " + productRepository.findAll());
-        System.out.println("zawartosc tabeli order: " + orderRepository.findAll());
+        // System.out.println("Aktualny user: " + user);
+        // System.out.println("jego adresy: " + user.getAddresses());
+        // System.out.println("zawartosc tabeli product: " + productRepository.findAll());
+        // System.out.println("zawartosc tabeli order: " + orderRepository.findAll());
 
-            if(encryptionService.verify(rawPassword, user.getPassword())) {
-                // password is correct, dołącz JWT do response
-                // Utwórz jwt tylko gdy User zweryfikował konto
-                if(user.isEmailVerified()) {
-                    String jwt = jwtService.generateJWT(user.getId());
-                    LoginResponse loginResponse = LoginResponse.success(user.getId(), jwt, "Login process went perfectly.");
-    
-                    SecurityContext securityContext = SecurityContextHolder.getContext();
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-                    securityContext.setAuthentication(authentication);
+        if(encryptionService.verify(rawPassword, user.getPassword())) {
+            // password is correct, dołącz JWT do response
+            // Utwórz jwt tylko gdy User zweryfikował konto
+            if(user.isEmailVerified()) {
+                String jwt = jwtService.generateJWT(user.getId());
+                LoginResponse loginResponse = LoginResponse.success(user.getId(), jwt, "Login process went perfectly.");
 
-                    return loginResponse;
-                } else {
-                    //1.  wcale nie wysłany lub link nieaktywny 
-                    List<VerificationToken> tokens = user.getVerificationTokens();
-                    boolean resend = tokens.size() == 0 || tokens.get(0).isExpired();//.getCreatedTimestamp().isBefore(LocalDateTime.now().minusHours(1))
-                    if(resend) {
-                        VerificationToken newToken = verificationService.createVerificationToken(user);
-                        tokenRepository.save(newToken);
+                SecurityContext securityContext = SecurityContextHolder.getContext();
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                securityContext.setAuthentication(authentication);
 
-                        emailService.makeAndSendVerificationMail(newToken);
-                    }
-                    //TODO: Uspraw te łapanie wyjątków, aby przekazywały 'cause' wyżej
-                    throw new UserNotVerifiedException("Please check your mailbox and verify your account.", !resend);
-                }
+                return loginResponse;
             } else {
-                throw new IncorrectCredentialsException("Credentials are not correct!");
+                //1.  wcale nie wysłany lub link nieaktywny 
+                List<VerificationToken> tokens = user.getVerificationTokens();
+                boolean resend = tokens.size() == 0 || tokens.get(0).isExpired();//.getCreatedTimestamp().isBefore(LocalDateTime.now().minusHours(1))
+                if(resend) {
+                    VerificationToken newToken = verificationService.createVerificationToken(user);
+                    tokenRepository.save(newToken);
+
+                    emailService.makeAndSendVerificationMail(newToken);
+                }
+                //TODO: Uspraw te łapanie wyjątków, aby przekazywały 'cause' wyżej
+                throw new UserNotVerifiedException("Please check your mailbox and verify your account.", !resend);
             }
+        } else {
+            throw new IncorrectCredentialsException("Credentials are not correct!");
+        }
     }
 
     @Override

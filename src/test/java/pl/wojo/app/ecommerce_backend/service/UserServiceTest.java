@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -32,6 +33,7 @@ import pl.wojo.app.ecommerce_backend.exeption.UsernameAlreadyExistsException;
 import pl.wojo.app.ecommerce_backend.model.LocalUser;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class UserServiceTest {
 
     private static RegistrationBody usernameInUse;
@@ -90,7 +92,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional  // zapewnia rollback po teście, brak LAZYinitialization Errors
     public void testRegisterUser() throws MessagingException {
         assertThrows(UsernameAlreadyExistsException.class, () -> userService.register(usernameInUse));
         assertThrows(EmailAlreadyExistsException.class, () -> userService.register(emailInUse));

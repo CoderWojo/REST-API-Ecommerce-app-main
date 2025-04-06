@@ -11,9 +11,11 @@ import pl.wojo.app.ecommerce_backend.model.LocalUser;
 @Repository
 public interface LocalUserRepository extends JpaRepository<LocalUser, Long> {
 
-    // TODO: analize
+    //jpql
     @Query("SELECT u.id FROM LocalUser u WHERE LOWER(u.email) = LOWER(:email)")
     Optional<Long> findUserIdByEmailIgnoreCase(String email);
+
+    Optional<LocalUser> findUserByUsernameIgnoreCase(String username);
 
     boolean existsByEmailIgnoreCase(String email);
 

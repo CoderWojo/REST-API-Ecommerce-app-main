@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 
 import jakarta.annotation.PostConstruct;
 
@@ -63,14 +64,18 @@ public class JWTService {
             cleanJwt = jwtToken.substring(7);
         else 
             cleanJwt = jwtToken;
+    
+        try {
+            // weryfikacja przechodzi po wszystkich claims po dacie też,
+            jwt.require(algorithm)
+                // .withSubject(cleanJwt) nie da sie zweryfikowac
+                .withIssuer(issuer)
+                .build()
+                .verify(cleanJwt);
+        } catch (JWTDecodeException e) {
+            return false;   // niepoprawna sygnatura
+        }
         
-        // weryfikacja przechodzi po wszystkich claims po dacie też, TODO: SPRAWDZ PODAJĄC NIEPOPRAWNY CLAIM (EDIT - DZIAŁA)
-        jwt.require(algorithm)
-            // .withSubject(cleanJwt) nie da sie zweryfikowac
-            .withIssuer(issuer)
-            .build()
-            .verify(cleanJwt);
-
         return true;
     }
 

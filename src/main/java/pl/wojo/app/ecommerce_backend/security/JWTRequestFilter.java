@@ -39,49 +39,51 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        // sprawdz czy user wysyła w żądaniu nagłówek Authorization z tokenem JWT
+        
+        String cleanJWT;
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        System.out.println("TUUUUUUU: " + authHeader);
-        // TODO: po udanym /login, niech user(Authentication) zostanie dodany do SecurityCOntext
-        if(authHeader != null && jwtService.verifyJWT(authHeader)) {
-            // dodajemy użytkownika do SecurityContext jako ten który ma dostęp.
-            String cleanJWT;
-            if(authHeader.startsWith("Bearer ")) 
-                cleanJWT = authHeader.substring(7);
-            else
-                cleanJWT = authHeader;
 
-            DecodedJWT decodedJWT = JWT.decode(cleanJWT);
-            Long user_id = Long.parseLong(decodedJWT.getSubject());
+        if(authHeader != null && authHeader.startsWith("Bearer ")) 
+            cleanJWT = authHeader.substring(7);
+        else
+            cleanJWT = authHeader;
 
-            System.out.println("user_id=====" + user_id);
-            Optional<LocalUser> opUser = repository.findById(user_id);
-            LocalUser user = null;
-            
-            List<LocalUser> all = repository.findAll();
-            System.out.println("All======" + all);
+            // sprawdzaj poprawność jwt tylko wtedy gdy user jest zweryfikowany
+            if(authHeader != null && jwtService.verifyJWT(authHeader)) {    // jeśli poprawny jwt
+                DecodedJWT decodedJWT = JWT.decode(cleanJWT);
+                Long user_id = Long.parseLong(decodedJWT.getSubject());
+                Optional<LocalUser> opUser = repository.findById(user_id);
 
-            System.out.println("User ====" + user);
-            if(opUser.isPresent()) {
-                user = opUser.get();
-            }
-            // TODO: do /profile zmien na tworzenie 'authorities', dodaj pole w LocalUser LIST<GRATUEDROLES>'ROLE' i tu podłącz i dodaj w bazie danych
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-            //setting details
-            WebAuthenticationDetailsSource source = new WebAuthenticationDetailsSource();
-            WebAuthenticationDetails details = source.buildDetails(request);
-            authentication.setDetails(details);
+                if(opUser.isPresent() && opUser.get().isEmailVerified()) {
+                    LocalUser user = opUser.get();
 
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            securityContext.setAuthentication(authentication);
-
-            System.out.println("SecurityContext, authentication: " + securityContext.getAuthentication());
-            
-            filterChain.doFilter(request, response);
-        } else {
-            // nie dodajemy
-            filterChain.doFilter(request, response);
-        }
-    }
+                    if(opUser.isPresent()) 
+                    {
+                        user = opUser.get();
+                        System.out.println("user to: " + user);
+                    }    
+                    // pozwól na zalogowanie niejawne za pom. jwt gdy jest zweryfikowany (zawsze true ale w tescie sprawdzilismy tą opcje)
+                    // dodajemy użytkownika do SecurityContext jako ten który ma dostęp.
     
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, 
+                    null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                    System.out.println("111.");
+
+                    //setting details
+                    WebAuthenticationDetailsSource source = new WebAuthenticationDetailsSource();
+                    WebAuthenticationDetails details = source.buildDetails(request);
+                    authentication.setDetails(details);
+
+                    SecurityContext securityContext = SecurityContextHolder.getContext();
+                    securityContext.setAuthentication(authentication);
+                    
+                    filterChain.doFilter(request, response);
+                    System.out.println("222.");
+                } else {
+                    filterChain.doFilter(request, response);
+                }
+        }
+        else
+            filterChain.doFilter(request, response);
+    }
 }

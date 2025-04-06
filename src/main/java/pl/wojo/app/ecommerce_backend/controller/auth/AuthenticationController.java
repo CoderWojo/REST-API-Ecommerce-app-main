@@ -59,7 +59,7 @@ public class AuthenticationController {
     
 
     @GetMapping("/me")
-    public LocalUser profile(@AuthenticationPrincipal LocalUser me) {
+    public LocalUser profile(@AuthenticationPrincipal LocalUser me) {   // @AuthenticationPrincipal pobiera principle a Authentication object z SecurityContext
         return me;
     }
 }

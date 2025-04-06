@@ -4,21 +4,21 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
-@ActiveProfiles("test")
-@TestPropertySource(locations = "classpath:application.properties") // 🔹 Wymuszenie pliku
+@AutoConfigureMockMvc
 public class ApplicationPropertiesTest {
     @Autowired
     private Environment environment;
 
     @Test
     public void testPropertyFileLoaded() {
-        System.out.println("test.property: " + environment.getProperty("test.property"));
+        System.out.println("spring.datasource.url: " + environment.getProperty("spring.datasource.url"));
+        System.out.println("spring.mail.port: " + environment.getProperty("spring.mail.port"));
+        
         assertNotNull(environment.getProperty("test.property"), "Plik application.properties NIE został załadowany!");
     }
 }
