@@ -42,32 +42,31 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         
         String cleanJWT;
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
         if(authHeader != null && authHeader.startsWith("Bearer ")) 
             cleanJWT = authHeader.substring(7);
         else
             cleanJWT = authHeader;
 
-            // sprawdzaj poprawność jwt tylko wtedy gdy user jest zweryfikowany
-            if(authHeader != null && jwtService.verifyJWT(authHeader)) {    // jeśli poprawny jwt
+            // No właśnie, zanim pobierzesz zdekodujesz jwt, pobierzesz user_id z niego i sprawdzisz czy istnieje w bazie...to 
+            // sprawdź WCZEŚNIEJ jwtService.verify()!!! któro nam sprawdza czy ISSUER jest poprawny i co najważniejsze - sprawdza czy JWT.REQUIRE(ALGORITHM)!!!
+            // sprawdz czy jwt jest z poprawnym ISSUER i signed ALGORITHM
+            if(authHeader != null && jwtService.verifyJWT(authHeader)) {
                 DecodedJWT decodedJWT = JWT.decode(cleanJWT);
                 Long user_id = Long.parseLong(decodedJWT.getSubject());
                 Optional<LocalUser> opUser = repository.findById(user_id);
-
+                
+                // sprawdź czy USER_ID zawarty w jwt istnieje w bazie danych
+                // !!! nie sprawdzamy czy klient sprawdza swój jwt!
+                // co jeśli doda do jwt user_id kogoś innego???????
                 if(opUser.isPresent() && opUser.get().isEmailVerified()) {
                     LocalUser user = opUser.get();
-
-                    if(opUser.isPresent()) 
-                    {
-                        user = opUser.get();
-                        System.out.println("user to: " + user);
-                    }    
+                     
                     // pozwól na zalogowanie niejawne za pom. jwt gdy jest zweryfikowany (zawsze true ale w tescie sprawdzilismy tą opcje)
                     // dodajemy użytkownika do SecurityContext jako ten który ma dostęp.
     
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, 
                     null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-                    System.out.println("111.");
+                    // System.out.println("111.");
 
                     //setting details
                     WebAuthenticationDetailsSource source = new WebAuthenticationDetailsSource();
@@ -78,7 +77,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
                     securityContext.setAuthentication(authentication);
                     
                     filterChain.doFilter(request, response);
-                    System.out.println("222.");
+                    // System.out.println("222.");
                 } else {
                     filterChain.doFilter(request, response);
                 }

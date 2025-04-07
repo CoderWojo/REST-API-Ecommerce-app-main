@@ -1,5 +1,8 @@
 package pl.wojo.app.ecommerce_backend.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +23,17 @@ public class JWTService {
 
     private String issuer;
 
-    private long expiresInSeconds; 
+    @Value("${verification.jwt.expirationTime}")
+    private long VerificationJWTexpirationTime;
+
+    @Value("${verification.jwt.unit}")
+    private String VerificationJWTunit;
+
+    @Value("${jwt.expirationTime}")
+    private long JWTexpirationTime;
+
+    @Value("${jwt.unit}")
+    private String JWTunit;
 
     @Value("${jwt.algorithm.secret_key}")  // 1.
     private String secret_key; 
@@ -29,7 +42,6 @@ public class JWTService {
     public void postConstruct() {
         jwt = new JWT();
         algorithm = Algorithm.HMAC256(secret_key);
-        expiresInSeconds = 3; //60 * 60 * 1000;  // 60*60*1000=1h 60 * 60 * 1000;
         issuer = "Wojo W.";
     }
 
@@ -38,8 +50,14 @@ public class JWTService {
             .withSubject(user_id.toString()) // subject
             .withIssuedAt(new Date())
             .withIssuer(issuer)
-            //TODO: roles
-            .withExpiresAt(new Date(System.currentTimeMillis() + expiresInSeconds * 1000))
+            // Tutaj nie możemy wysłać LocalDateTime bo nie jest to nasz obiekt, tylko narzucony przez JWT 
+            .withExpiresAt(Date.from(
+                LocalDateTime.now()
+                    .plus(JWTexpirationTime, ChronoUnit.valueOf(JWTunit))
+                    // Musimy zamienić na Zone (ZoneDateTime) aby pozniej zamienic na punkt w czasie czyl Instant
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+            ))
             .sign(algorithm);
             
         return "Bearer " + JWT_token;
@@ -52,7 +70,12 @@ public class JWTService {
             .withIssuer(issuer)
             //TODO: roles
             // TODO: chyba trzeba ExpiresAt!
-            .withExpiresAt(new Date(System.currentTimeMillis() + expiresInSeconds))
+            .withExpiresAt(Date.from(
+                LocalDateTime.now()
+                    .plus(VerificationJWTexpirationTime, ChronoUnit.valueOf(VerificationJWTunit))
+                    // Musimy zamienić na Zone (ZoneDateTime) aby pozniej zamienic na punkt w czasie czyl Instant
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()))
             .sign(algorithm);
             
         return "Bearer " + JWT_token;
@@ -81,5 +104,9 @@ public class JWTService {
 
     public Long getId(String token) {
         return Long.parseLong(jwt.decodeJwt(token).getSubject());
+    }
+
+    public Algorithm getAlgorithm() {
+        return algorithm;
     }
 }

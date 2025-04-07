@@ -6,6 +6,7 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import pl.wojo.app.ecommerce_backend.api_model.LoginBody;
 import pl.wojo.app.ecommerce_backend.api_model.LoginResponse;
+import pl.wojo.app.ecommerce_backend.api_model.MeResponse;
 import pl.wojo.app.ecommerce_backend.api_model.RegistrationBody;
 import pl.wojo.app.ecommerce_backend.model.LocalUser;
 import pl.wojo.app.ecommerce_backend.service.UserService;
@@ -59,7 +60,8 @@ public class AuthenticationController {
     
 
     @GetMapping("/me")
-    public LocalUser profile(@AuthenticationPrincipal LocalUser me) {   // @AuthenticationPrincipal pobiera principle a Authentication object z SecurityContext
-        return me;
+    public MeResponse profile(@AuthenticationPrincipal LocalUser me) {   // @AuthenticationPrincipal pobiera principle a Authentication object z SecurityContext
+        MeResponse response = new MeResponse(me.getId(), me.getUsername(), me.getEmail(), me.getFirstName(), me.getLastName());
+        return response;
     }
 }

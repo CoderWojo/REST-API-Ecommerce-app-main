@@ -29,31 +29,41 @@ public class OrderControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    @WithUserDetails(value = "UserA")    // symuluje wysyłanie żądania jako konkretny USER (username)!!!
-    public void testAuthenticatedOrderList() throws Exception {
+    // @Test
+    // @WithUserDetails(value = "UserA")    // symuluje wysyłanie żądania jako konkretny USER (username)!!!
+    public void testAuthenticatedOrderListBelongsToUser(String username) throws Exception {
         mockMvc.perform(get("/orders"))
             .andExpect(status().isOk())
             .andExpect((MvcResult result) -> {
                 String json_response = result.getResponse().getContentAsString();
-                System.out.println("Json_response to: " + json_response);
+                // System.out.println("Json_response to: " + json_response);
                 // TypeReference to klasa generyczna którea zapamiętuje typy w czasie kompilacji i przekazuje je dalej Jacksonowi
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.registerModule(new JavaTimeModule());
-                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                // mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
                 List<WebOrder> orders = mapper.readValue(json_response, new TypeReference<List<WebOrder>> (){});
                 // .readTree do niekonwertowania na obiekt klasy tylko do odczytywania pojedynczych pól
-                System.out.println("uwaga: " + orders.get(0).getUser().getVerificationTokens().get(0));
+                // System.out.println("uwaga: " + orders.get(0).getUser().getVerificationTokens().get(0));
                 for(WebOrder order: orders) {
                     
                     // sprawdzamy czy wszystkie zamówienia otrzymane w rezultacie należą do UserA
-                    assertEquals("UserA", order.getUser().getUsername());  
+                    assertEquals(username, order.getUser().getUsername());  
                 }
             });
             /* Jackson robi serializację (Java -> JSON) i odwrotnie
              * Problemem jest deserializacja z JSON do JAVA bo on zaserializował metodę isExpired=true bo Jackson myśli że 
              */
+    }
+
+    @WithUserDetails("UserA")
+    @Test
+    public void testUserAAuthenticatedOrderList() throws Exception {
+        testAuthenticatedOrderListBelongsToUser("UserA");
+    }
+
+    public void testUserBAuthenticatedOrderList() throws Exception {
+        testAuthenticatedOrderListBelongsToUser("UserB");
     }
 
     @Test

@@ -172,6 +172,7 @@ public class UserServiceImpl implements UserService {
                 tokenRepository.deleteByUser(user);
                 return true;
             } else {
+                // przez to że usuwamy zużyty Token, nie ten blok kodu nie zadziała
                 throw new UserAlreadyVerifiedException("You are verified. Doing it again is unnecessary.");
             }
         } else 
